@@ -63,6 +63,7 @@ String stateNames[] = {"start", "game", "end"};
 
 float hValues[] = {27, -33, 140, 221, 14, -4, 360};
 float range[] = {2, 2, 3, 2, 2, 2, 2};
+int previousColor = WHITE;
 
 
 void setup(){
@@ -80,15 +81,12 @@ void setup(){
   digitalWrite(EN_12,HIGH);
   myservo.write(90);
   
-  while(1){
-    avanti(3);
-  }
+  /////////////////
+  //color sensor//
+  ///////////////
   
-  
-  //color sensor
-  
-  /*TSC_Init();
-  Timer1.initialize();             // defaulte is 1s
+  TSC_Init();
+  Timer1.initialize(100000);             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
@@ -103,7 +101,7 @@ void setup(){
  
   Serial.println(g_SF[0]);
   Serial.println(g_SF[1]);
-  Serial.println(g_SF[2]);*/
+  Serial.println(g_SF[2]);
 }
 
 void loop(){
@@ -191,28 +189,19 @@ void hDecide(float h){
 
 #ifdef RANGE
 void hDecide(float h){
+
+  int closest_num = -1;
   
-  float closest_distance = 360;
-  String closest_name = "black";
-  int closest_num = 0;
-  
-  if(h != 360){
-  
-    for(int i = 0; i< numColors; i++)
-    {
-       float h_distance = abs(h - hValues[i]);
-   
-       if (h_distance < closest_distance)
-       {
-          closest_name = colorNames[i];
-          closest_distance = h_distance;
-          closest_num = i;
-       }
-    }
+  for(int i = 0; i < numColors; ++i){
     
+    if(h >= (hValues[i] - range) && h <= (hValues[i] + range)){
+      closest_num = i;
+      previousColor = closest_num;
+    }
   }
-  else 
-    closest_num = WHITE;
+  
+  if(closest_num == -1)
+    closest_num = previousColor;
   
   
   changeState(closest_num);
