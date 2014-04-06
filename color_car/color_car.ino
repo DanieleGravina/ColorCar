@@ -3,6 +3,7 @@
 #include <TimerOne.h>
 
 #define DEBUG
+#define MINIMIZE
 
 #define EN_12 7 //Posteriore
 #define IN_1 10
@@ -61,6 +62,7 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "White", "Orange", "
 String stateNames[] = {"start", "game", "end"};
 
 float hValues[] = {27, -33, 140, 221, 14, -4, 360};
+float range[] = {2, 2, 3, 2, 2, 2, 2};
 
 
 void setup(){
@@ -150,6 +152,7 @@ void decideV2(float red, float blue, float green)
     hDecide(h);
 }
 
+#ifdef MINIMIZE
 void hDecide(float h){
   
   float closest_distance = 360;
@@ -184,6 +187,45 @@ void hDecide(float h){
   delay(200);
   #endif
 }
+#endif
+
+#ifdef RANGE
+void hDecide(float h){
+  
+  float closest_distance = 360;
+  String closest_name = "black";
+  int closest_num = 0;
+  
+  if(h != 360){
+  
+    for(int i = 0; i< numColors; i++)
+    {
+       float h_distance = abs(h - hValues[i]);
+   
+       if (h_distance < closest_distance)
+       {
+          closest_name = colorNames[i];
+          closest_distance = h_distance;
+          closest_num = i;
+       }
+    }
+    
+  }
+  else 
+    closest_num = WHITE;
+  
+  
+  changeState(closest_num);
+  
+  #ifdef DEBUG
+  Serial.println(colorNames[closest_num]);
+  //Serial.print("|");
+  //Serial.println(stateNames[myState]);
+  delay(200);
+  #endif
+}
+#endif
+
 
 void changeState(int colorDecision){
   

@@ -100,7 +100,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(100000);             // set 1s period
+  Timer1.setPeriod(100000);      // set 1s period 1000000
 }
  
 void setup()
@@ -110,11 +110,11 @@ void setup()
   
   
   Serial.begin(9600);
-  Timer1.initialize();             // defaulte is 1s
+  Timer1.initialize(100000);             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
-  attachInterrupt(0, TSC_Count, RISING);  
+  attachInterrupt(0, TSC_Count, RISING); //counting the frequency of the OUT signal(intesity proportional to frequency) 
  
-  delay(4000);
+  delay(400);
  
   for(int i=0; i<3; i++)
     Serial.println(g_array[i]);
