@@ -3,7 +3,7 @@
 #include <TimerOne.h>
 
 #define DEBUG
-#define MINIMIZE
+#define RANGE
 
 #define EN_12 7 //Posteriore
 #define IN_1 10
@@ -58,7 +58,7 @@ state myState = outRoad;
 
 Servo myservo;
 
-String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "White", "Orange", "Red", "White" };
+String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "White" };
 String stateNames[] = {"start", "game", "end"};
 
 float hValues[] = {27, -33, 140, 221, 14, -4, 360};
@@ -81,12 +81,14 @@ void setup(){
   digitalWrite(EN_12,HIGH);
   myservo.write(90);
   
+ 
+  
   /////////////////
   //color sensor//
   ///////////////
   
   TSC_Init();
-  Timer1.initialize(100000);             // defaulte is 1s
+  Timer1.initialize();             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
@@ -111,7 +113,7 @@ void loop(){
   Count[R] = g_array[R] * g_SF[R];
   Count[B] = g_array[B] * g_SF[B];
   Count[G] = g_array[G] * g_SF[G];
-  
+    
   decideV2((float)Count[R], (float)Count[G], (float)Count[B]);
   
   #ifdef DEBUG
@@ -147,6 +149,16 @@ void decideV2(float red, float blue, float green)
       else if(maxi == blue)
               h = 60*(((red - green)/delta) + 4);
     }
+    
+    
+    
+    #ifdef DEBUG
+    
+    Serial.println(h);
+    
+    #endif
+    
+    
     hDecide(h);
 }
 
@@ -194,14 +206,15 @@ void hDecide(float h){
   
   for(int i = 0; i < numColors; ++i){
     
-    if(h >= (hValues[i] - range) && h <= (hValues[i] + range)){
+    if(h >= (hValues[i] - range[i]) && h <= (hValues[i] + range[i])){
       closest_num = i;
       previousColor = closest_num;
     }
   }
   
   if(closest_num == -1)
-    closest_num = previousColor;
+    //closest_num = previousColor
+    Serial.println("not found");
   
   
   changeState(closest_num);
@@ -352,7 +365,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(100000);             // set 1s period
+  Timer1.setPeriod(1000000);             // set 1s period
 }
 
 ///////////////////

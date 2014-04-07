@@ -100,7 +100,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(100000);      // set 1s period 1000000
+  Timer1.setPeriod(100000);             // set 1s period
 }
  
 void setup()
@@ -112,9 +112,9 @@ void setup()
   Serial.begin(9600);
   Timer1.initialize(100000);             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
-  attachInterrupt(0, TSC_Count, RISING); //counting the frequency of the OUT signal(intesity proportional to frequency) 
+  attachInterrupt(0, TSC_Count, RISING);  
  
-  delay(400);
+  delay(4000);
  
   for(int i=0; i<3; i++)
     Serial.println(g_array[i]);
@@ -142,8 +142,8 @@ void decideV2(float red, float green, float blue)
     
     float delta = maxi - mini;
     
-    if(delta == 0)
-    
+    if(red > 250 && green > 250 && blue > 250)
+   
       h = 360;
       
     else{
