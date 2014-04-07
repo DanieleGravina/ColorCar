@@ -30,8 +30,8 @@
 #define RED 5
 #define WHITE 6
 
-#define SPEED_2 2
-#define SPEED_1 1
+#define SPEED_2 4
+#define SPEED_1 3
 
 #define DRITTO 90
 #define RUOTA_1 30
@@ -61,8 +61,9 @@ Servo myservo;
 String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "White" };
 String stateNames[] = {"start", "game", "end"};
 
-float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-float range[] = {2, 2, 3, 2, 2, 2, 2};
+//float hValues[] = {27, -33, 140, 221, 14, -4, 360};
+float hValues[] = {-27, 33, 217, 137, -14, 4, 360};
+float range[] = {3, 3, 3, 3, 3, 3, 2};
 int previousColor = WHITE;
 
 
@@ -88,7 +89,7 @@ void setup(){
   ///////////////
   
   TSC_Init();
-  Timer1.initialize();             // defaulte is 1s
+  Timer1.initialize(100000);             // defaulte is 1s
   Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
@@ -117,8 +118,13 @@ void loop(){
   decideV2((float)Count[R], (float)Count[G], (float)Count[B]);
   
   #ifdef DEBUG
-  Serial.println("");
-  delay(200);
+  /*Serial.print(Count[R]);
+  Serial.print("|");
+  Serial.print(Count[G]);
+  Serial.print("|");
+  Serial.println(Count[B]);
+  */
+  delay(1000);
   #endif
   
 }
@@ -136,7 +142,7 @@ void decideV2(float red, float blue, float green)
     
     float delta = maxi - mini;
     
-    if(delta == 0)
+    if(red > 245 && green > 245 && blue > 245)
     
       h = 360;
       
@@ -194,7 +200,6 @@ void hDecide(float h){
   Serial.println(colorNames[closest_num]);
   //Serial.print("|");
   //Serial.println(stateNames[myState]);
-  delay(200);
   #endif
 }
 #endif
@@ -214,7 +219,7 @@ void hDecide(float h){
   
   if(closest_num == -1)
     //closest_num = previousColor
-    Serial.println("not found");
+    stopped();
   
   
   changeState(closest_num);
@@ -223,7 +228,6 @@ void hDecide(float h){
   Serial.println(colorNames[closest_num]);
   //Serial.print("|");
   //Serial.println(stateNames[myState]);
-  delay(200);
   #endif
 }
 #endif
@@ -276,6 +280,7 @@ void dritto(){
 
 void avanti(int gear){
   analogWrite(IN_1, 127*gear);
+  digitalWrite(IN_1,HIGH);
   digitalWrite(IN_2,LOW);
 }
 
@@ -365,7 +370,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(1000000);             // set 1s period
+  Timer1.setPeriod(100000);             // set 1s period
 }
 
 ///////////////////
