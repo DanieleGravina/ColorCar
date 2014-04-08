@@ -1,14 +1,19 @@
 #include <Wire.h>
 #include <Servo.h>
-#include <TimerOne.h>
+//#include <TimerOne.h>
+#include <MsTimer2.h>
+
+
+
+
 
 #define DEBUG
 #define RANGE
 
 #define EN_12 7 //Posteriore
 #define IN_1 10
-#define IN_2 11
-#define IN_S 9
+#define IN_S 11
+#define IN_2 9
 
 #define S0     6
 #define S1     5
@@ -17,6 +22,8 @@
 #define OUT    2
 
 #define numColors  7
+
+#define DELAY_COLOR 30
 
 #define R 0
 #define G 1
@@ -30,12 +37,13 @@
 #define RED 5
 #define WHITE 6
 
-#define SPEED_2 4
-#define SPEED_1 3
+#define SPEED_2 2
+#define SPEED_1 1
+#define GEAR 127
 
-#define DRITTO 90
-#define RUOTA_1 30
-#define RUOTA_2 60
+#define DRITTO 93
+#define RUOTA_1 20
+#define RUOTA_2 40
 
 int   g_count = 0;    // count the frequecy
 int   g_array[3];     // store the RGB value
@@ -43,6 +51,8 @@ int   g_flag = 0;     // filter of RGB queue
 float g_SF[3];        // save the RGB Scale factor
 
 int Count[3]; 
+
+int i = 0;
 
 
 
@@ -62,8 +72,8 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 String stateNames[] = {"start", "game", "end"};
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-float hValues[] = {-27, 33, 217, 137, -14, 4, 360};
-float range[] = {3, 3, 3, 3, 3, 3, 2};
+float hValues[] = {-27, 33, 218, 139, -14, 4, 360};
+float range[] = {4, 4, 4, 4, 4, 4, 2};
 int previousColor = WHITE;
 
 
@@ -80,7 +90,11 @@ void setup(){
   
   myservo.attach(IN_S);
   digitalWrite(EN_12,HIGH);
-  myservo.write(90);
+  
+  dritto();
+  
+ 
+  
   
  
   
@@ -89,11 +103,15 @@ void setup(){
   ///////////////
   
   TSC_Init();
-  Timer1.initialize(100000);             // defaulte is 1s
-  Timer1.attachInterrupt(TSC_Callback);  
+  MsTimer2::set(DELAY_COLOR, TSC_Callback); // 500ms period
+  MsTimer2::start();
+
+  
+  //Timer1.initialize();             // defaulte is 1s
+  //Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
-  delay(4000);
+  delay(DELAY_COLOR*4);
  
   for(int i=0; i<3; i++)
     Serial.println(g_array[i]);
@@ -105,6 +123,7 @@ void setup(){
   Serial.println(g_SF[0]);
   Serial.println(g_SF[1]);
   Serial.println(g_SF[2]);
+
 }
 
 void loop(){
@@ -122,9 +141,11 @@ void loop(){
   Serial.print("|");
   Serial.print(Count[G]);
   Serial.print("|");
-  Serial.println(Count[B]);
-  */
-  delay(1000);
+  Serial.println(Count[B]);*/
+  
+  //Serial.print("i:");
+  //Serial.println(i);
+  delay(DELAY_COLOR*4);
   #endif
   
 }
@@ -217,12 +238,14 @@ void hDecide(float h){
     }
   }
   
-  if(closest_num == -1)
+  if(closest_num == -1){
     //closest_num = previousColor
-    stopped();
+    //stopped();
+  }
+  else{
+    changeState(closest_num);
+  }
   
-  
-  changeState(closest_num);
   
   #ifdef DEBUG
   Serial.println(colorNames[closest_num]);
@@ -268,7 +291,8 @@ void changeState(int colorDecision){
         break;
    
         
- } 
+ }
+ 
  
           
 }
@@ -279,8 +303,7 @@ void dritto(){
 }
 
 void avanti(int gear){
-  analogWrite(IN_1, 127*gear);
-  digitalWrite(IN_1,HIGH);
+  analogWrite(IN_1, GEAR*gear);
   digitalWrite(IN_2,LOW);
 }
 
@@ -290,10 +313,10 @@ void stopped(){
 }
 
 void destra(int degree){
-  myservo.write(DRITTO - degree); 
+  myservo.write(DRITTO + degree); 
 }
 void sinistra(int degree){
-  myservo.write(degree); 
+  myservo.write(DRITTO - degree);
 }
 
 ///////////////////
@@ -333,6 +356,8 @@ void TSC_Count()
  
 void TSC_Callback()
 {
+  i++;
+  
   switch(g_flag)
   {
     case 0: 
@@ -370,7 +395,7 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  Timer1.setPeriod(100000);             // set 1s period
+  //Timer1.setPeriod(1000000);             // set 1s period
 }
 
 ///////////////////
