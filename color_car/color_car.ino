@@ -11,12 +11,12 @@
 #define RANGE
 
 #define EN_12 7 //Posteriore
-#define IN_1 10
-#define IN_S 11
-#define IN_2 9
+#define IN_1 6
+#define IN_S 9
+#define IN_2 5
 
-#define S0     6
-#define S1     5
+#define S0     11
+#define S1     8
 #define S2     4
 #define S3     3
 #define OUT    2
@@ -39,11 +39,11 @@
 
 #define SPEED_2 2
 #define SPEED_1 1
-#define GEAR 127
+#define GEAR 250
 
 #define DRITTO 93
-#define RUOTA_1 20
-#define RUOTA_2 40
+#define RUOTA_1 1
+#define RUOTA_2 30
 
 int   g_count = 0;    // count the frequecy
 int   g_array[3];     // store the RGB value
@@ -92,12 +92,7 @@ void setup(){
   digitalWrite(EN_12,HIGH);
   
   dritto();
-  
  
-  
-  
- 
-  
   /////////////////
   //color sensor//
   ///////////////
@@ -133,9 +128,10 @@ void loop(){
   Count[R] = g_array[R] * g_SF[R];
   Count[B] = g_array[B] * g_SF[B];
   Count[G] = g_array[G] * g_SF[G];
-    
+
   decideV2((float)Count[R], (float)Count[G], (float)Count[B]);
   
+
   #ifdef DEBUG
   /*Serial.print(Count[R]);
   Serial.print("|");
@@ -145,7 +141,8 @@ void loop(){
   
   //Serial.print("i:");
   //Serial.println(i);
-  delay(DELAY_COLOR*4);
+  delay(DELAY_COLOR*4);  
+  
   #endif
   
 }
