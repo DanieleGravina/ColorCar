@@ -1,10 +1,6 @@
 #include <Wire.h>
 #include <Servo.h>
-//#include <TimerOne.h>
 #include <MsTimer2.h>
-
-
-
 
 
 #define DEBUG
@@ -54,17 +50,21 @@ int Count[3];
 
 int i = 0;
 
+int combination[numColors];
+
+
+
 
 
 typedef enum state{
   
-  start,
-  game,
-  outRoad
+  normal,
+  loop180
+  
   
 } state;
 
-state myState = outRoad;
+state myState = normal;
 
 Servo myservo;
 
@@ -72,8 +72,8 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 String stateNames[] = {"start", "game", "end"};
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-float hValues[] = {-27, 33, 218, 139, -14, 4, 360};
-float range[] = {4, 4, 4, 4, 4, 4, 2};
+float hValues[] = {-27, 30, 218, 139, -14, 4, 360};
+float range[] = {4, 6, 4, 4, 4, 4, 2};
 int previousColor = WHITE;
 
 
@@ -251,6 +251,27 @@ void hDecide(float h){
   #endif
 }
 #endif
+
+void combinationMode(int colorDecision){
+  
+  combination[colorDecision]++;
+  
+  if(combination[RED] > THRESHOLD && combination[YELLOW]>THRESHOLD && combination[GREEN]>THRESHOLD)
+    state = loop180;
+    
+  checkState();  
+    
+  
+}
+
+void checkState(){
+  
+  switch(state){
+    
+    case loop180:
+      //gira per tot secondi
+  }
+}
 
 
 void changeState(int colorDecision){
