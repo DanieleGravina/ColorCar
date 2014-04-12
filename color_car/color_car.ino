@@ -59,7 +59,9 @@ int combination[numColors];
 typedef enum state{
   
   normal,
-  loop180
+  red = 5,
+  blue = 3, 
+  green = 2
   
   
 } state;
@@ -256,21 +258,34 @@ void combinationMode(int colorDecision){
   
   combination[colorDecision]++;
   
-  if(combination[RED] > THRESHOLD && combination[YELLOW]>THRESHOLD && combination[GREEN]>THRESHOLD)
-    state = loop180;
+  if(combination[colorDecision] > THRESHOLD ){
+    reset();
+      
+    checkColors(colorDecision);
     
-  checkState();  
+    colorIndex++;
+    
+    
+      
+  }
+    
     
   
 }
 
-void checkState(){
+void checkColors(int colorDecision){
   
-  switch(state){
-    
-    case loop180:
-      //gira per tot secondi
-  }
+  key += colorDecision*(colorIndex + 1);
+  
+  
+  if(colorIndex == 3)
+  
+    switch(key){
+      
+      case RBY: 
+        
+    }
+  
 }
 
 
