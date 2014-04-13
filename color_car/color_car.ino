@@ -1,10 +1,6 @@
 #include <Wire.h>
 #include <Servo.h>
-//#include <TimerOne.h>
 #include <MsTimer2.h>
-
-
-
 
 
 #define DEBUG
@@ -42,8 +38,8 @@
 #define GEAR 250
 
 #define DRITTO 93
-#define RUOTA_1 1
-#define RUOTA_2 30
+#define RUOTA_1 20
+#define RUOTA_2 35
 
 int   g_count = 0;    // count the frequecy
 int   g_array[3];     // store the RGB value
@@ -53,6 +49,10 @@ float g_SF[3];        // save the RGB Scale factor
 int Count[3]; 
 
 int i = 0;
+
+int noColor = 0;
+
+boolean firstTime = true;
 
 
 
@@ -72,8 +72,8 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 String stateNames[] = {"start", "game", "end"};
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-float hValues[] = {-27, 33, 218, 139, -14, 4, 360};
-float range[] = {4, 4, 4, 4, 4, 4, 2};
+float hValues[] = {-27, 25, 228, 139, -14, 4, 360};
+float range[] = {4, 4, 4, 4, 2, 4, 2};
 int previousColor = WHITE;
 
 
@@ -118,7 +118,8 @@ void setup(){
   Serial.println(g_SF[0]);
   Serial.println(g_SF[1]);
   Serial.println(g_SF[2]);
-
+  
+  avanti(SPEED_1);
 }
 
 void loop(){
@@ -131,6 +132,7 @@ void loop(){
 
   decideV2((float)Count[R], (float)Count[G], (float)Count[B]);
   
+  delay(DELAY_COLOR*4); 
 
   #ifdef DEBUG
   /*Serial.print(Count[R]);
@@ -140,8 +142,7 @@ void loop(){
   Serial.println(Count[B]);*/
   
   //Serial.print("i:");
-  //Serial.println(i);
-  delay(DELAY_COLOR*4);  
+  //Serial.println(i); 
   
   #endif
   
@@ -236,10 +237,15 @@ void hDecide(float h){
   }
   
   if(closest_num == -1){
-    //closest_num = previousColor
-    //stopped();
+    noColor++;
+    
+    if(noColor > 5){
+      stopped();
+    }
+
   }
   else{
+    noColor = 0;
     changeState(closest_num);
   }
   
@@ -258,33 +264,42 @@ void changeState(int colorDecision){
  switch(colorDecision){
    
    case RED:
+        firstTime = false;
         dritto(); 
         avanti(SPEED_1);
         break;
         
    case PURPLE:
-        dritto(); 
-        avanti(SPEED_2);
+        firstTime = false;
+        sinistra(RUOTA_2);
         break;
         
    case BLUE:
+        firstTime = false;
         sinistra(RUOTA_1);
         break;
    
    case YELLOW:
+        firstTime = false;
         sinistra(RUOTA_2);
         break;
    
    case GREEN:
+        firstTime = false;
         destra(RUOTA_1);
         break;
         
    case ORANGE:
+        firstTime = false;
         destra(RUOTA_2);
         break;
         
    case WHITE:
-        stopped();
+   
+        if(!firstTime)
+          stopped();
+          
+        dritto();
         break;
    
         
