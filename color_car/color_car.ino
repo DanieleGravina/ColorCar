@@ -17,9 +17,12 @@
 #define S3     3
 #define OUT    2
 
+#define led 13
+
 #define numColors  7
 
 #define DELAY_COLOR 30
+#define DELAY_START 1000
 
 #define R 0
 #define G 1
@@ -46,35 +49,19 @@ int   g_array[3];     // store the RGB value
 int   g_flag = 0;     // filter of RGB queue
 float g_SF[3];        // save the RGB Scale factor
 
-int Count[3]; 
-
-int i = 0;
+int Count[3];
 
 int noColor = 0;
 
-boolean firstTime = true;
-
-
-
-typedef enum state{
-  
-  start,
-  game,
-  outRoad
-  
-} state;
-
-state myState = outRoad;
+boolean firstTime = true; 
 
 Servo myservo;
 
 String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "White" };
-String stateNames[] = {"start", "game", "end"};
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
 float hValues[] = {-27, 25, 228, 139, -14, 4, 360};
-float range[] = {4, 4, 4, 4, 2, 4, 2};
-int previousColor = WHITE;
+float range[] = {4, 4, 4, 4, 2, 4, 4};
 
 
 void setup(){
@@ -83,6 +70,17 @@ void setup(){
   Serial.begin(9600);
   #endif
   
+  /////////////
+  /////led/////
+  /////////////
+  
+  pinMode(led, OUTPUT);
+  
+  digitalWrite(led, HIGH);
+  
+  /////////////////
+  /////DC motor////
+  /////////////////
   
   pinMode(EN_12, OUTPUT);
   pinMode(IN_1, OUTPUT);
@@ -97,13 +95,12 @@ void setup(){
   //color sensor//
   ///////////////
   
+  delay(DELAY_START);
+  
   TSC_Init();
   MsTimer2::set(DELAY_COLOR, TSC_Callback); // 500ms period
   MsTimer2::start();
 
-  
-  //Timer1.initialize();             // defaulte is 1s
-  //Timer1.attachInterrupt(TSC_Callback);  
   attachInterrupt(0, TSC_Count, RISING);  
  
   delay(DELAY_COLOR*4);
@@ -187,43 +184,7 @@ void decideV2(float red, float blue, float green)
     hDecide(h);
 }
 
-#ifdef MINIMIZE
-void hDecide(float h){
-  
-  float closest_distance = 360;
-  String closest_name = "black";
-  int closest_num = 0;
-  
-  if(h != 360){
-  
-    for(int i = 0; i< numColors; i++)
-    {
-       float h_distance = abs(h - hValues[i]);
-   
-       if (h_distance < closest_distance)
-       {
-          closest_name = colorNames[i];
-          closest_distance = h_distance;
-          closest_num = i;
-       }
-    }
-    
-  }
-  else 
-    closest_num = WHITE;
-  
-  
-  changeState(closest_num);
-  
-  #ifdef DEBUG
-  Serial.println(colorNames[closest_num]);
-  //Serial.print("|");
-  //Serial.println(stateNames[myState]);
-  #endif
-}
-#endif
 
-#ifdef RANGE
 void hDecide(float h){
 
   int closest_num = -1;
@@ -232,7 +193,7 @@ void hDecide(float h){
     
     if(h >= (hValues[i] - range[i]) && h <= (hValues[i] + range[i])){
       closest_num = i;
-      previousColor = closest_num;
+ 
     }
   }
   
@@ -252,11 +213,8 @@ void hDecide(float h){
   
   #ifdef DEBUG
   Serial.println(colorNames[closest_num]);
-  //Serial.print("|");
-  //Serial.println(stateNames[myState]);
   #endif
 }
-#endif
 
 
 void changeState(int colorDecision){
@@ -321,7 +279,12 @@ void avanti(int gear){
 
 void stopped(){
   digitalWrite(IN_1, LOW);
-  digitalWrite(IN_2, LOW);  
+  digitalWrite(IN_2, LOW); 
+ 
+  digitalWrite(led, LOW);
+ 
+  while(1){
+  } 
 }
 
 void destra(int degree){
@@ -368,7 +331,6 @@ void TSC_Count()
  
 void TSC_Callback()
 {
-  i++;
   
   switch(g_flag)
   {
