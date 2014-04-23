@@ -36,9 +36,9 @@
 #define RED 5
 #define WHITE 6
 
-#define SPEED_2 2
-#define SPEED_1 1
-#define GEAR 250
+#define SPEED_2 255
+#define SPEED_1 220
+#define GEAR 180
 
 #define DRITTO 93
 #define RUOTA_1 20
@@ -60,8 +60,9 @@ Servo myservo;
 String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "White" };
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-float hValues[] = {-27, 25, 228, 139, -14, 4, 360};
-float range[] = {4, 4, 4, 4, 2, 4, 4};
+//float hValues[] = {-27, 25, 215, 139, -14, 4, 360};
+float hValues[] = {-27, 25, 224, 137, -6, 4, 360};
+float range[] = {4, 4, 3, 3, 2, 4, 4};
 
 
 void setup(){
@@ -98,7 +99,7 @@ void setup(){
   delay(DELAY_START);
   
   TSC_Init();
-  MsTimer2::set(DELAY_COLOR, TSC_Callback); // 500ms period
+  MsTimer2::set(DELAY_COLOR, TSC_Callback); // DELAY_COLOR ms period
   MsTimer2::start();
 
   attachInterrupt(0, TSC_Count, RISING);  
@@ -116,7 +117,7 @@ void setup(){
   Serial.println(g_SF[1]);
   Serial.println(g_SF[2]);
   
-  avanti(SPEED_1);
+  avanti(SPEED_2);
 }
 
 void loop(){
@@ -136,10 +137,7 @@ void loop(){
   Serial.print("|");
   Serial.print(Count[G]);
   Serial.print("|");
-  Serial.println(Count[B]);*/
-  
-  //Serial.print("i:");
-  //Serial.println(i); 
+  Serial.println(Count[B]);*/ 
   
   #endif
   
@@ -273,7 +271,7 @@ void dritto(){
 }
 
 void avanti(int gear){
-  analogWrite(IN_1, GEAR*gear);
+  analogWrite(IN_1, gear);
   digitalWrite(IN_2,LOW);
 }
 
@@ -283,8 +281,8 @@ void stopped(){
  
   digitalWrite(led, LOW);
  
-  while(1){
-  } 
+  /*while(1){
+  } */
 }
 
 void destra(int degree){
@@ -307,8 +305,11 @@ void TSC_Init()
   pinMode(S3, OUTPUT);
   pinMode(OUT, INPUT);
  
-  digitalWrite(S0, LOW);  // OUTPUT FREQUENCY SCALING 2%
-  digitalWrite(S1, HIGH); 
+  /*digitalWrite(S0, LOW);  // OUTPUT FREQUENCY SCALING 2%
+  digitalWrite(S1, HIGH); */
+  
+  digitalWrite(S0, HIGH);  // OUTPUT FREQUENCY SCALING 20%
+  digitalWrite(S1, LOW); 
 }
  
 // Select the filter color 
@@ -335,26 +336,18 @@ void TSC_Callback()
   switch(g_flag)
   {
     case 0: 
-         //Serial.println("->WB Start");
          TSC_WB(LOW, LOW);              //Filter without Red
          break;
     case 1:
-         //Serial.print("->Frequency R=");
-         //Serial.println(g_count);
          g_array[0] = g_count;
          TSC_WB(HIGH, HIGH);            //Filter without Green
          break;
     case 2:
-         //Serial.print("->Frequency G=");
-         //Serial.println(g_count);
          g_array[1] = g_count;
          TSC_WB(LOW, HIGH);             //Filter without Blue
          break;
  
     case 3:
-         //Serial.print("->Frequency B=");
-         //Serial.println(g_count);
-         //Serial.println("->WB End");
          g_array[2] = g_count;
          TSC_WB(HIGH, LOW);             //Clear(no filter)   
          break;
@@ -369,7 +362,6 @@ void TSC_WB(int Level0, int Level1)      //White Balance
   g_count = 0;
   g_flag ++;
   TSC_FilterColor(Level0, Level1);
-  //Timer1.setPeriod(1000000);             // set 1s period
 }
 
 ///////////////////
