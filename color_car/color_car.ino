@@ -4,7 +4,6 @@
 
 
 #define DEBUG
-#define RANGE
 
 #define EN_12 7 //Posteriore
 #define IN_1 6
@@ -44,6 +43,16 @@
 #define RUOTA_1 20
 #define RUOTA_2 35
 
+#define MIN3(x,y,z)  ((y) <= (z) ? \
+                         ((x) <= (y) ? (x) : (y)) \
+                     : \
+                         ((x) <= (z) ? (x) : (z)))
+
+#define MAX3(x,y,z)  ((y) >= (z) ? \
+                         ((x) >= (y) ? (x) : (y)) \
+                     : \
+                         ((x) >= (z) ? (x) : (z)))
+
 int   g_count = 0;    // count the frequecy
 int   g_array[3];     // store the RGB value
 int   g_flag = 0;     // filter of RGB queue
@@ -61,8 +70,8 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
 //float hValues[] = {-27, 25, 215, 139, -14, 4, 360};
-float hValues[] = {-27, 25, 224, 137, -6, 4, 360};
-float range[] = {4, 4, 3, 3, 2, 4, 4};
+float hValues[] = {-27, 25, 228, 137, -7, -1, 360};
+float range[] = {4, 4, 3, 4, 2, 2, 4};
 
 
 void setup(){
@@ -148,11 +157,9 @@ void decideV2(float red, float blue, float green)
   
     float h;
     
-    float maxi = max(red, blue);
-    maxi = max(maxi, green);
+    float maxi = MAX3(red, green, blue);
     
-    float mini = min(red, blue);
-    mini = min(mini, green);
+    float mini = MIN3(red, green, blue);
     
     float delta = maxi - mini;
     
@@ -160,15 +167,45 @@ void decideV2(float red, float blue, float green)
     
       h = 360;
       
+    // compute hue  
     else{
       
-      int q = ((green - blue)/delta)/6;
-      h= 60*(((green - blue)/delta) - 6*q);
       if(maxi == green)
+      
             h = 60*(((blue - red)/delta) + 2);
+            
       else if(maxi == blue)
+      
               h = 60*(((red - green)/delta) + 4);
+              
+              else {
+                  
+                  h = 60*fmod(((green - blue)/delta), 6);
+                
+              }
     }
+    
+              /*red /= maxi;
+              green /= maxi;
+              blue /= maxi;
+              maxi = MAX3(red, green, blue);
+              mini = MIN3(red, green, blue);
+              
+              red = (red - mini)/(maxi - mini);
+              green = (green - mini)/(maxi - mini);
+              blue = (blue - mini)/(maxi - mini);
+              maxi = MAX3(red, green, blue);
+              mini = MIN3(red, green, blue);
+              
+              if (maxi == red) {
+                    h = 0.0 + 60.0*(green - blue); 
+              } else if (maxi == green) {
+                      h = 120.0 + 60.0*(blue - red);
+                     } else {
+                        h = 240.0 + 60.0*(red - green);
+              }
+    
+          }*/
     
     
     
