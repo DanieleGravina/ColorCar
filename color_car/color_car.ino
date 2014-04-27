@@ -16,7 +16,9 @@
 #define S3     3
 #define OUT    2
 
-#define led 13
+#define r_led 12 //red led
+#define g_led 13 //green led
+
 
 #define numColors  7
 
@@ -84,9 +86,8 @@ void setup(){
   /////led/////
   /////////////
   
-  pinMode(led, OUTPUT);
-  
-  digitalWrite(led, HIGH);
+  pinMode(r_led, OUTPUT);
+  pinMode(g_led, OUTPUT);
   
   /////////////////
   /////DC motor////
@@ -126,6 +127,7 @@ void setup(){
   Serial.println(g_SF[1]);
   Serial.println(g_SF[2]);
   
+  digitalWrite(g_led, HIGH); //calibration's over
   avanti(SPEED_2);
 }
 
@@ -316,10 +318,11 @@ void stopped(){
   digitalWrite(IN_1, LOW);
   digitalWrite(IN_2, LOW); 
  
-  digitalWrite(led, LOW);
+  digitalWrite(g_led, LOW); //game over
+  digitalWrite(r_led, HIGH);
  
-  /*while(1){
-  } */
+  while(1){
+  } 
 }
 
 void destra(int degree){
