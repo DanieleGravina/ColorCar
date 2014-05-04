@@ -5,6 +5,7 @@
 
 #define DEBUG
 
+
 #define EN_12 7 //Posteriore
 #define IN_1 6
 #define IN_S 9
@@ -72,8 +73,8 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
 //float hValues[] = {-27, 25, 215, 139, -14, 4, 360};
-float hValues[] = {-27, 25, 228, 137, -7, -1, 360};
-float range[] = {4, 4, 3, 4, 2, 2, 4};
+float hValues[] = {-27, 25, 230, 142, -7, -1, 360};
+float range[] = {4, 4, 4, 4, 2, 2, 4};
 
 
 void setup(){
@@ -148,7 +149,7 @@ void loop(){
   Serial.print("|");
   Serial.print(Count[G]);
   Serial.print("|");
-  Serial.println(Count[B]);*/ 
+  Serial.println(Count[B]);*/
   
   #endif
   
@@ -321,8 +322,10 @@ void stopped(){
   digitalWrite(g_led, LOW); //game over
   digitalWrite(r_led, HIGH);
  
+  #ifdef RELEASE 
   while(1){
   } 
+  #endif
 }
 
 void destra(int degree){
