@@ -1,16 +1,27 @@
+////////////////////////////////////////////////////////////////
+/// Color Car:                                                //
+/// Firmware for the Robotics And Design project ColorCar,    //
+/// an arduino controlled DC car with an RGB sensor, that     //
+/// follow colored track by steering the front wheel depending//
+/// on the color detected.                                    //
+////////////////////////////////////////////////////////////////
+
 #include <Wire.h>
 #include <Servo.h>
 #include <MsTimer2.h>
 
 
 #define DEBUG
+//#define RELEASE
 
-
-#define EN_12 7 //Posteriore
+//Pin H bridge for DC motor
+#define EN_12 7 
 #define IN_1 6
 #define IN_S 9
 #define IN_2 5
 
+
+//Pin RGB sensor
 #define S0     11
 #define S1     8
 #define S2     4
@@ -23,6 +34,7 @@
 
 #define numColors  7
 
+//delay for RGB sensor timer
 #define DELAY_COLOR 30
 #define DELAY_START 1000
 
@@ -63,8 +75,10 @@ float g_SF[3];        // save the RGB Scale factor
 
 int Count[3];
 
+//Store how many times RGB sensor see no color
 int noColor = 0;
 
+//flag that says if RGB see the white for the first time
 boolean firstTime = true; 
 
 Servo myservo;
@@ -74,7 +88,7 @@ String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "Wh
 //float hValues[] = {27, -33, 140, 221, 14, -4, 360};
 //float hValues[] = {-27, 25, 215, 139, -14, 4, 360};
 float hValues[] = {-27, 25, 230, 142, -7, -1, 360};
-float range[] = {4, 4, 4, 4, 2, 2, 4};
+float range[] = {4, 4, 4, 4, 3, 3, 4};
 
 
 void setup(){
@@ -155,6 +169,7 @@ void loop(){
   
 }
 
+//Compute the Hue component of HSV from RGB
 void decideV2(float red, float blue, float green)
 {
   
@@ -173,6 +188,9 @@ void decideV2(float red, float blue, float green)
     // compute hue  
     else{
       
+      if(firstTime)
+          firstTime = false;
+      
       if(maxi == green)
       
             h = 60*(((blue - red)/delta) + 2);
@@ -188,30 +206,6 @@ void decideV2(float red, float blue, float green)
               }
     }
     
-              /*red /= maxi;
-              green /= maxi;
-              blue /= maxi;
-              maxi = MAX3(red, green, blue);
-              mini = MIN3(red, green, blue);
-              
-              red = (red - mini)/(maxi - mini);
-              green = (green - mini)/(maxi - mini);
-              blue = (blue - mini)/(maxi - mini);
-              maxi = MAX3(red, green, blue);
-              mini = MIN3(red, green, blue);
-              
-              if (maxi == red) {
-                    h = 0.0 + 60.0*(green - blue); 
-              } else if (maxi == green) {
-                      h = 120.0 + 60.0*(blue - red);
-                     } else {
-                        h = 240.0 + 60.0*(red - green);
-              }
-    
-          }*/
-    
-    
-    
     #ifdef DEBUG
     
     Serial.println(h);
@@ -222,7 +216,7 @@ void decideV2(float red, float blue, float green)
     hDecide(h);
 }
 
-
+//Decide what color has been detected 
 void hDecide(float h){
 
   int closest_num = -1;
@@ -238,7 +232,7 @@ void hDecide(float h){
   if(closest_num == -1){
     noColor++;
     
-    if(noColor > 5){
+    if(noColor > 5){ //if 5 times no color detected -> game over
       stopped();
     }
 
@@ -254,39 +248,33 @@ void hDecide(float h){
   #endif
 }
 
-
+//Map the color detected with the steering angle of the front wheel
 void changeState(int colorDecision){
   
  switch(colorDecision){
    
    case RED:
-        firstTime = false;
         dritto(); 
         avanti(SPEED_1);
         break;
         
    case PURPLE:
-        firstTime = false;
         sinistra(RUOTA_2);
         break;
         
    case BLUE:
-        firstTime = false;
         sinistra(RUOTA_1);
         break;
    
    case YELLOW:
-        firstTime = false;
         sinistra(RUOTA_2);
         break;
    
    case GREEN:
-        firstTime = false;
         destra(RUOTA_1);
         break;
         
    case ORANGE:
-        firstTime = false;
         destra(RUOTA_2);
         break;
         
@@ -306,15 +294,18 @@ void changeState(int colorDecision){
 }
 
 
+// Straight
 void dritto(){
   myservo.write(DRITTO);
 }
 
+//Speed control
 void avanti(int gear){
   analogWrite(IN_1, gear);
   digitalWrite(IN_2,LOW);
 }
 
+//Stop the car
 void stopped(){
   digitalWrite(IN_1, LOW);
   digitalWrite(IN_2, LOW); 
@@ -328,9 +319,13 @@ void stopped(){
   #endif
 }
 
+//Turn right of degree angle
 void destra(int degree){
   myservo.write(DRITTO + degree); 
 }
+
+
+//Turn left of degree angle
 void sinistra(int degree){
   myservo.write(DRITTO - degree);
 }
