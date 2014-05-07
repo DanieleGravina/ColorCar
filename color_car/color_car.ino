@@ -12,7 +12,7 @@
 
 
 #define DEBUG
-//#define RELEASE
+#define RELEASE
 
 //Pin H bridge for DC motor
 #define EN_12 7 
@@ -43,20 +43,18 @@
 #define B 2
 
 #define YELLOW  0
-#define PURPLE 1
+#define BLUE 1
 #define GREEN 2
-#define BLUE 3
-#define ORANGE 4
-#define RED 5
-#define WHITE 6
+#define SKY_BLUE 3
+#define RED 4
+#define WHITE 5
 
 #define SPEED_2 255
 #define SPEED_1 220
-#define GEAR 180
 
-#define DRITTO 93
-#define RUOTA_1 20
-#define RUOTA_2 35
+#define STRAIGHT 87
+#define WHEEL_1 20
+#define WHEEL_2 35
 
 #define MIN3(x,y,z)  ((y) <= (z) ? \
                          ((x) <= (y) ? (x) : (y)) \
@@ -83,12 +81,11 @@ boolean firstTime = true;
 
 Servo myservo;
 
-String colorNames[] = {"Yellow", "Purple", "Green", "Blue", "Orange", "Red", "White" };
+String colorNames[] = {"Yellow", "Blue", "Green", "Sky Blue", "Red", "White" };
 
-//float hValues[] = {27, -33, 140, 221, 14, -4, 360};
-//float hValues[] = {-27, 25, 215, 139, -14, 4, 360};
-float hValues[] = {-27, 25, 230, 142, -7, -1, 360};
-float range[] = {4, 4, 4, 4, 3, 3, 4};
+// Hue component of the colors recognised by the sensor
+float hValues[] = {-21, 139, 230, 143, -1, 360};
+float range[] =   {  4,   3,   10,   3,  3,   4};
 
 
 void setup(){
@@ -115,7 +112,7 @@ void setup(){
   myservo.attach(IN_S);
   digitalWrite(EN_12,HIGH);
   
-  dritto();
+  straight();
  
   /////////////////
   //color sensor//
@@ -143,7 +140,7 @@ void setup(){
   Serial.println(g_SF[2]);
   
   digitalWrite(g_led, HIGH); //calibration's over
-  avanti(SPEED_2);
+  go(SPEED_2);
 }
 
 void loop(){
@@ -254,38 +251,33 @@ void changeState(int colorDecision){
  switch(colorDecision){
    
    case RED:
-        dritto(); 
-        avanti(SPEED_1);
+        straight(); 
+        go(SPEED_1);
         break;
         
-   case PURPLE:
-        sinistra(RUOTA_2);
+   case SKY_BLUE:
+        left(WHEEL_2);
         break;
         
    case BLUE:
-        sinistra(RUOTA_1);
+        left(WHEEL_1);
         break;
    
    case YELLOW:
-        sinistra(RUOTA_2);
+        right(WHEEL_2);
         break;
    
    case GREEN:
-        destra(RUOTA_1);
-        break;
-        
-   case ORANGE:
-        destra(RUOTA_2);
+        right(WHEEL_1);
         break;
         
    case WHITE:
    
         if(!firstTime)
           stopped();
-          
-        dritto();
+        
+        straight();
         break;
-   
         
  }
  
@@ -295,13 +287,13 @@ void changeState(int colorDecision){
 
 
 // Straight
-void dritto(){
-  myservo.write(DRITTO);
+void straight(){
+  myservo.write(STRAIGHT);
 }
 
 //Speed control
-void avanti(int gear){
-  analogWrite(IN_1, gear);
+void go(int vel){
+  analogWrite(IN_1, vel);
   digitalWrite(IN_2,LOW);
 }
 
@@ -320,14 +312,14 @@ void stopped(){
 }
 
 //Turn right of degree angle
-void destra(int degree){
-  myservo.write(DRITTO + degree); 
+void right(int degree){
+  myservo.write(STRAIGHT + degree); 
 }
 
 
 //Turn left of degree angle
-void sinistra(int degree){
-  myservo.write(DRITTO - degree);
+void left(int degree){
+  myservo.write(STRAIGHT - degree);
 }
 
 ///////////////////
@@ -343,11 +335,8 @@ void TSC_Init()
   pinMode(S3, OUTPUT);
   pinMode(OUT, INPUT);
  
-  /*digitalWrite(S0, LOW);  // OUTPUT FREQUENCY SCALING 2%
-  digitalWrite(S1, HIGH); */
-  
-  digitalWrite(S0, HIGH);  // OUTPUT FREQUENCY SCALING 20%
-  digitalWrite(S1, LOW); 
+  digitalWrite(S0, LOW);  // OUTPUT FREQUENCY SCALING 2%
+  digitalWrite(S1, HIGH);  
 }
  
 // Select the filter color 
