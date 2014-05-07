@@ -11,7 +11,7 @@
 #include <MsTimer2.h>
 
 
-#define DEBUG
+#define DEBUG //comment out ot disable serial debugging
 #define RELEASE
 
 //Pin H bridge for DC motor
@@ -151,23 +151,23 @@ void loop(){
   Count[B] = g_array[B] * g_SF[B];
   Count[G] = g_array[G] * g_SF[G];
 
-  decideV2((float)Count[R], (float)Count[G], (float)Count[B]);
+  computeH((float)Count[R], (float)Count[G], (float)Count[B]);
   
   delay(DELAY_COLOR*4); 
 
   #ifdef DEBUG
-  /*Serial.print(Count[R]);
+  Serial.print(Count[R]);
   Serial.print("|");
   Serial.print(Count[G]);
   Serial.print("|");
-  Serial.println(Count[B]);*/
+  Serial.println(Count[B]);
   
   #endif
   
 }
 
 //Compute the Hue component of HSV from RGB
-void decideV2(float red, float blue, float green)
+void computeH(float red, float blue, float green)
 {
   
     float h;
@@ -306,6 +306,7 @@ void stopped(){
   digitalWrite(r_led, HIGH);
  
   #ifdef RELEASE 
+  //reset to restart
   while(1){
   } 
   #endif
