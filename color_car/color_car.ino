@@ -11,7 +11,7 @@
 #include <MsTimer2.h>
 
 
-#define DEBUG //comment out ot disable serial debugging
+#define DEBUG //comment out to disable serial debugging
 #define RELEASE
 
 //Pin H bridge for DC motor
