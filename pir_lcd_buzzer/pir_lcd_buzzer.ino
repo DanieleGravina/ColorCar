@@ -1,30 +1,3 @@
-/* 
- * //////////////////////////////////////////////////
- * //making sense of the Parallax PIR sensor's output
- * //////////////////////////////////////////////////
- *
- * Switches a LED according to the state of the sensors output pin.
- * Determines the beginning and end of continuous motion sequences.
- *
- * @author: Kristian Gohlke / krigoo (_) gmail (_) com / http://krx.at
- * @date:   3. September 2006 
- *
- * kr1 (cleft) 2006 
- * released under a creative commons "Attribution-NonCommercial-ShareAlike 2.0" license
- * http://creativecommons.org/licenses/by-nc-sa/2.0/de/
- *
- *
- * The Parallax PIR Sensor is an easy to use digital infrared motion sensor module. 
- * (http://www.parallax.com/detail.asp?product_id=555-28027)
- *
- * The sensor's output pin goes to HIGH if motion is present.
- * However, even if motion is present it goes to LOW from time to time, 
- * which might give the impression no motion is present. 
- * This program deals with this issue by ignoring LOW-phases shorter than a given time, 
- * assuming continuous motion is present during these phases.
- *  
- */
- 
 #include <LiquidCrystal.h>
 
 
@@ -76,12 +49,13 @@ boolean takeLowTime;
 
 int pirPin = 7;    //the digital pin connected to the PIR sensor's output
 int ledPin = 13;
+int retroPin = 8;
 
 int speaker = 6;    //porta do arduino
 long vel = 20000;
 
-int mario_m[] = {tone_e, tone_e, tone_e, tone_c, tone_e, tone_g, tone_G, tone_c, tone_G, tone_E, tone_A, tone_B, tone_Bb, tone_A, tone_G, tone_e, tone_g, tone_a, tone_f, tone_g, tone_e, tone_c, tone_d, tone_B, tone_c};
-int mario_r[] = {6, 12, 12, 6, 12, 24, 24, 18, 18, 18, 12, 12, 6, 12, 8, 8, 8, 12, 6, 12, 12, 6, 6, 6, 12};
+int mario_m[] = {tone_G, tone_E, tone_D, tone_C, tone_D, tone_E, tone_G, tone_E, tone_D, tone_C, tone_D, tone_E, tone_D, tone_E,tone_G, tone_E, tone_G, tone_A, tone_E, tone_A, tone_G, tone_E, tone_D, tone_C};
+int mario_r[] = {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 16};
  
 
 /////////////////////////////
@@ -93,6 +67,8 @@ void setup(){
   pinMode(speaker, OUTPUT);
   
   pinMode(ledPin, OUTPUT);
+  
+  pinMode(retroPin, OUTPUT);
   
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
@@ -119,14 +95,17 @@ void loop(){
   
       // set the cursor to column 0, line 1
       // (note: line 1 is the second row, since counting begins with 0):
-      //lcd.setCursor(0, 1);
+     lcd.setCursor(0, 0);
+    
 
      if(digitalRead(pirPin) == HIGH){
        digitalWrite(ledPin, HIGH);
+       
        if(lockLow){  
+         digitalWrite(retroPin, HIGH);
          //makes sure we wait for a transition to LOW before any further output is made:
          lockLow = false;            
-         lcd.print("Victory!");
+         lcd.print("Vittoria!!! :D");
          Serial.println("---");
          Serial.print("motion detected at ");
          Serial.print(millis()/1000);
@@ -137,7 +116,8 @@ void loop(){
          takeLowTime = true;
        }
 
-     if(digitalRead(pirPin) == LOW){       
+     if(digitalRead(pirPin) == LOW){
+       
        digitalWrite(ledPin, LOW);
        if(takeLowTime){
         lowIn = millis();          //save the time of the transition from high to LOW
@@ -146,6 +126,7 @@ void loop(){
        //if the sensor is low for more than the given pause, 
        //we assume that no more motion is going to happen
        if(!lockLow && millis() - lowIn > pause){  
+           digitalWrite(retroPin, LOW);
            //makes sure this block of code is only executed again after 
            //a new motion sequence has been detected
            lockLow = true;   
@@ -160,7 +141,7 @@ void loop(){
   
   
  void playMelody(){
-    const int LEN = (sizeof(mario_r) + 1) / 2;
+    const int LEN = (sizeof(mario_r) + 1) / sizeof(int);
     Serial.println(LEN);
     for (int i=0; i < LEN; i++)
     {
