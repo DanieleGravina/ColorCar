@@ -81,10 +81,10 @@ boolean firstTime = true;
 
 Servo myservo;
 
-String colorNames[] = {"Yellow", "Blue", "Green", "Sky Blue", "Red", "White" };
+String colorNames[] = {"Yellow", "Blue", "Green", "Sky Blue", "Red", "White", "Black" };
 
 // Hue component of the colors recognised by the sensor
-float hValues[] = {-21, 139, 230, 143, -1, 360};
+float hValues[] = {-21, 139, 230, 143, -1, 360, };
 float range[] =   {  4,   3,   10,   3,  3,   4};
 
 
@@ -150,12 +150,8 @@ void loop(){
   Count[R] = g_array[R] * g_SF[R];
   Count[B] = g_array[B] * g_SF[B];
   Count[G] = g_array[G] * g_SF[G];
-
-  computeH((float)Count[R], (float)Count[G], (float)Count[B]);
   
-  delay(DELAY_COLOR*4); 
-
-  #ifdef DEBUG
+    #ifdef DEBUG
   Serial.print(Count[R]);
   Serial.print("|");
   Serial.print(Count[G]);
@@ -163,6 +159,12 @@ void loop(){
   Serial.println(Count[B]);
   
   #endif
+
+  computeH((float)Count[R], (float)Count[G], (float)Count[B]);
+  
+  delay(DELAY_COLOR*4); 
+
+
   
 }
 
@@ -178,7 +180,7 @@ void computeH(float red, float blue, float green)
     
     float delta = maxi - mini;
     
-    if(red > 245 && green > 245 && blue > 245)
+    if( (red > 245 && green > 245 && blue > 245) || (red < 20 && green < 20 && blue <20))
     
       h = 360;
       
@@ -222,7 +224,7 @@ void hDecide(float h){
     
     if(h >= (hValues[i] - range[i]) && h <= (hValues[i] + range[i])){
       closest_num = i;
- 
+       i=numColors;
     }
   }
   
