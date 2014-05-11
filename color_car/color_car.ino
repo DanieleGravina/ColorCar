@@ -84,7 +84,7 @@ Servo myservo;
 String colorNames[] = {"Yellow", "Blue", "Green", "Sky Blue", "Red", "White", "Black" };
 
 // Hue component of the colors recognised by the sensor
-float hValues[] = {-21, 139, 230, 143, -1, 360, };
+float hValues[] = {-21, 139,  230,  143,  -1,  360};
 float range[] =   {  4,   3,   10,   3,  3,   4};
 
 
