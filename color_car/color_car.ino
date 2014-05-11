@@ -1,10 +1,12 @@
-////////////////////////////////////////////////////////////////
-/// Color Car:                                                //
-/// Firmware for the Robotics And Design project ColorCar,    //
-/// an arduino controlled DC car with an RGB sensor, that     //
-/// follow colored track by steering the front wheel depending//
-/// on the color detected.                                    //
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/// Nuvolari:                                                                      //
+/// Firmware for the Robotics And Design project Nuvolari,                         //
+/// an arduino controlled DC car with an RGB sensor, that                          //
+/// follow colored track by steering the front wheel depending                     //
+/// on the color detected.                                                         //
+/// repository :                                                                   //
+/// https://github.com/DanieleGravina/ColorCar/blob/master/color_car/color_car.ino //
+/////////////////////////////////////////////////////////////////////////////////////
 
 #include <Wire.h>
 #include <Servo.h>
@@ -50,9 +52,9 @@
 #define WHITE 5
 
 #define SPEED_2 255
-#define SPEED_1 220
+#define SPEED_1 190
 
-#define STRAIGHT 87
+#define STRAIGHT 98
 #define WHEEL_1 20
 #define WHEEL_2 35
 
@@ -180,15 +182,17 @@ void computeH(float red, float blue, float green)
     
     float delta = maxi - mini;
     
-    if( (red > 245 && green > 245 && blue > 245) || (red < 20 && green < 20 && blue <20))
+    if( (red > 240 && green > 240 && blue > 240) || (red < 20 && green < 20 && blue <20))
     
       h = 360;
       
     // compute hue  
     else{
       
-      if(firstTime)
+      if(firstTime){
+          go(SPEED_1);
           firstTime = false;
+      }
       
       if(maxi == green)
       
@@ -301,6 +305,7 @@ void go(int vel){
 
 //Stop the car
 void stopped(){
+  
   digitalWrite(IN_1, LOW);
   digitalWrite(IN_2, LOW); 
  
@@ -309,8 +314,9 @@ void stopped(){
  
   #ifdef RELEASE 
   //reset to restart
-  while(1){
-  } 
+  for(int i = 0; i < 50; i++){
+    i--;
+  }
   #endif
 }
 
@@ -397,3 +403,4 @@ void TSC_WB(int Level0, int Level1)      //White Balance
 ///////////////////
 //end color sensor
 //////////////////
+
